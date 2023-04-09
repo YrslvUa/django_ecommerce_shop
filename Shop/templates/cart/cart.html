@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %} Shopping Cart {% endblock %}
+
+{% block content %}
+<div class="container">
+  <div class="panel panel-primary">
+    <div class="panel-heading">
+      <h6 style="text-align:center;" class="panel-title">My Cart</h6>
+    </div>
+    <table class="table table-hover" id="dev-table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Image</th>
+          <th>Price</th>
+          <th>Quantity</th>
+            <th>Add</th>
+          <th>Remove From Cart</th>
+
+        </tr>
+      </thead>
+      {% for p in products %}
+  {% if p %}
+
+      <tr>
+        <td> {{p.name}}</td>
+        <td> <img src="{{  p.product_img.url }}" alt="Profile Pic" height="40px" width="40px" /></td>
+        <td>{{p.price}}</td>
+
+
+
+        <td>{{ p.quantity }}</td>
+           <td>
+          <form method="post" action="{% url 'New_Shop:add_to_cart' p.id %}">
+  {% csrf_token %}
+  <label for="quantity">Quantity:</label>
+  <input type="number" name="quantity" id="quantity" min="1" value="{{ object.quantity|default:1 }}">
+  <button type="submit">Add to Cart</button>
+</form>
+          </td>
+ <td>
+          <form method="post" action="{% url 'New_Shop:remove_from_cart' p.id %}">
+  {% csrf_token %}
+  <label for="quantity">Quantity:</label>
+  <input type="number" name="quantity" id="quantity" min="1" value="{{ object.quantity|default:1 }}">
+  <button type="submit">Remove from Cart</button>
+</form>
+      </td>
+      </tr>
+      {%else%}
+      <br><br><br>
+      <h1>no products</h1>
+      {% endif %}
+      {% endfor %}
+    </table>
+  </div>
+</div>
+<br><br><br>
+<div style="text-align: center;">
+  <button class="button button2">Total {{total}}</button>
+  <a href="/customer-address"><button class="button" ><span>Purchase </span></button></a>
+</div>
+
+
+{% endblock content %}

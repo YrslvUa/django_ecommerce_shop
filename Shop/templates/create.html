@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% load crispy_forms_filters %}
+{% load crispy_forms_tags %}
+
+{% block head_title %}{{ title }}{% endblock head_title %}
+{% block content %}
+<form action="" method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form|crispy }}
+    <input type="submit" value="Створити">
+</form>
+<hr>
+<a href="/"><button >Вернутись на домашню сторінку(введені данні не збережуться)</button></a>
+{% endblock content %}

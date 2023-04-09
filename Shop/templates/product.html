@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block head_title %}{{ title }}{% endblock head_title %}
+{% block content %}
+
+{% for object in objects_list%}
+    <div class="card mx-auto" style="width: 18rem;">
+        {% if object.product_img %}
+            <a href="{{ object.get_absolute_url }}">
+                <img src="{{ object.product_img.url }}" class="card-img-top" alt="img"></a>
+        {% else %}
+                <img src="{% static 'img/no_image.png' %}" class="img-fluid rounded-start" alt="img">
+        {% endif %}
+        <div class="card-body">
+            <h5 class="card-title">{{ object.name }}</h5>
+            <p class="card-text">{{ object.description }}</p>
+            {% if object.user.get_full_name %}
+                    <p class="card-text"><small class="text-muted">{{ object.user.get_full_name }}</small></p>
+            {% endif %}
+        </div>
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item">{{ object.price }} грн</li>
+        </ul>
+        <div class="card-body">
+            <button onclick="location.href='{{ object.get_absolute_url }}'"
+                    type="button" class="btn btn-outline-primary">Detail</button>
+            <button onclick="location.href='/'" type="button" class="btn btn-outline-primary">
+                Home</button>
+        </div>
+    </div>
+{% endfor %}
+
+
+
+<!--Pagination-->
+<nav aria-label="Page navigation example">
+    <ul class="pagination justify-content-center">
+        <li class="page-item">
+            {% if objects_list.has_previous %}
+                <a class="page-link" href="?{{ page_request_var }}={{ objects_list.previous_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}" aria-label="Previous">
+                    <span aria-hidden="true">&laquo;</span>
+                </a>
+            {% endif %}
+        </li>
+
+        {% for page_number in objects_list.paginator.page_range %}
+            {% if objects_list.number == page_number %}
+                <button class="btn btn-outline-primary active">
+                    <span>{{ page_number }} <span class="sr-only"></span></span>
+                </button>
+            {% else %}
+                <a href="?{{ page_request_var }}={{ page_number }}{% if search_query %}&q={{ search_query }}{% endif %}" class="btn btn-outline-primary">
+                    {{ page_number }}
+                </a>
+            {% endif %}
+        {% endfor %}
+
+        {% if objects_list.has_next %}
+            <a class="page-link" href="??{{ page_request_var }}={{ objects_list.next_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}" aria-label="Next">
+                <span aria-hidden="true">&raquo;</span>
+            </a>
+        {% endif %}
+    </ul>
+</nav>
+<!--End of Pagination-->
+
+{% endblock content %}

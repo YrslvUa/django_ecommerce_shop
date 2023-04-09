@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block head_title %}{{ title }}{% endblock head_title %}
+{% block content %}
+
+<!--  Start Card -->
+<div class="card mb-3 mx-auto" style="max-width: 540px;">
+    <div class="row g-0">
+        <div class="col-md-4">
+            {% if object.product_img %}
+                <img src="{{ object.product_img.url }}" class="img-fluid rounded-start" alt="img">
+            {% else %}
+                <img src="{% static 'img/no_image.png' %}" class="img-fluid rounded-start" alt="img">
+            {% endif %}
+        </div>
+        <div class="col-md-8">
+            <div class="card-body">
+                <h3 class="card-title">{{ object.name }}</h3>
+                <p>Ціна: {{ object.price }} грн</p>
+                <p>Категорія: {{ object.category }}</p>
+                <p>Опис товару: {{ object.description }}</p>
+
+            <form method="post" action="{% url 'New_Shop:add_to_cart' object.id %}">
+      {% csrf_token %}
+      <label for="quantity"></label>
+      <input type="number" name="quantity" id="quantity" min="1" value="{{ object.quantity|default:1 }}">
+      <button type="submit">Add</button>
+    </form>
+
+                <p>URL: <a class="btn btn-primary" href="{{ object.url }}" target="_blank">Metro</a></p>
+                {% if object.user.get_full_name %}
+                    <p class="card-text"><small class="text-muted">{{ object.user.get_full_name }}</small></p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+<!--  End Card -->
+
+<!--  Start Button group -->
+<div class="text-center">
+    <div class="btn-group" role="group" aria-label="Button group with nested dropdown">
+        <a class="btn btn-primary" href="/product/{{ object.category_id }}" role="button">Перейти до всіх продуктів категорії</a>
+        <a class="btn btn-primary" href="/" role="button">Вернутись на домашню сторінку</a>
+        {% if user.is_staff %}
+        <div class="btn-group" role="group">
+            <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                Взаємодія з контентом
+            </button>
+            <ul class="dropdown-menu">
+                {% if perms.New_Shop.can_edit %}
+                    <li><a class="dropdown-item" href="/update/{{ object.id }}">Редагувати</a></li>
+                {% else %}
+                    <p class="text-center">You cannot edit items.</p>
+                {% endif %}
+                {% if perms.New_Shop.can_delete %}
+                    <li><a class="dropdown-item" href='/delete/{{ object.id }}'>Видалити</a></li>
+                {% else %}
+                    <p class="text-center">You cannot delete items.</p>
+                {% endif %}
+                {% if perms.New_Shop.can_add %}
+                    <li><a class="dropdown-item" href="/create/">Добавити новий продукт</a></li>
+                {% else %}
+                    <p class="text-center">You cannot add items.</p>
+                {% endif %}
+            </ul>
+        </div>
+        {% endif %}
+    </div>
+</div>
+<!--  End Button group -->
+
+{% endblock content %}
