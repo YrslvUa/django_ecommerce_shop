@@ -89,7 +89,7 @@ def create(request):
             extra_tags='html_safe'
         )
         messages.info(
-            request, '<a href="/create">Створити</a> ще 1 новий продукт?',
+            request, '<a href="/create">Створити</a> ще 1 продукт?',
             extra_tags='html_safe'
         )
         return HttpResponseRedirect(instance.get_absolute_url())
@@ -253,30 +253,51 @@ def subscribe(request):
         return redirect(request.META.get("HTTP_REFERER", 'New_Shop:home_page'))
 
 
-def cart_view(request):
+def cart(request):
     products = []
     total = 0
+
     if 'cart' in request.session:
-        cart = request.session['cart']
-        product_ids = list(cart.keys())
-        products = Product.objects.filter(id__in=product_ids)
-        for p in products:
-            p.quantity = cart[str(p.id)]['quantity']
-            total += p.price * p.quantity
-    return render(request, 'cart/cart.html',
-                  {'products': products, 'total': total})
+        products_in_cart = request.session['cart']
+        if products_in_cart:
+            product_ids = list(products_in_cart.keys())
+            products = Product.objects.filter(id__in=product_ids)
+            for p in products:
+                p.quantity = products_in_cart[str(p.id)]['quantity']
+                total += p.price * p.quantity
+
+    addressForm = AddressForm()
+    if request.method == 'POST':
+        addressForm = AddressForm(request.POST)
+        if addressForm.is_valid():
+            email = addressForm.cleaned_data['Email']
+            mobile = addressForm.cleaned_data['Mobile']
+            address = addressForm.cleaned_data['Address']
+
+            request.session['email'] = email
+            request.session['mobile'] = mobile
+            request.session['address'] = address
+            request.session.save()
+
+            return render(request, 'cart/payment.html', {'total': total})
+    if products:
+        return render(request, 'cart/cart.html',
+                      {'products': products, 'total': total,
+                       'addressForm': addressForm})
+    else:
+        return render(request, 'cart/cart.html', {'products': products})
 
 
 def add_to_cart(request, pk):
     instance = get_object_or_404(Product, id=pk, available=True)
     if 'cart' not in request.session:
         request.session['cart'] = {}
-    cart = request.session['cart']
+    products_in_cart = request.session['cart']
     quantity = int(request.POST.get('quantity', 1))
-    if str(pk) in cart:
-        cart[str(pk)]['quantity'] += quantity
+    if str(pk) in products_in_cart:
+        products_in_cart[str(pk)]['quantity'] += quantity
     else:
-        cart[str(pk)] = {'quantity': quantity}
+        products_in_cart[str(pk)] = {'quantity': quantity}
     request.session.modified = True
     messages.info(request, f"{quantity} {instance.name} added to cart successfully!")
     return redirect(request.META.get("HTTP_REFERER", 'New_Shop:home_page'))
@@ -284,12 +305,12 @@ def add_to_cart(request, pk):
 
 def remove_from_cart(request, pk):
     if 'cart' in request.session:
-        cart = request.session['cart']
-        if str(pk) in cart:
+        products_in_cart = request.session['cart']
+        if str(pk) in products_in_cart:
             remove_quantity = int(request.POST.get('remove_quantity', 1))
-            if cart[str(pk)]['quantity'] <= remove_quantity:
-                del cart[str(pk)]
+            if products_in_cart[str(pk)]['quantity'] <= remove_quantity:
+                del products_in_cart[str(pk)]
             else:
-                cart[str(pk)]['quantity'] -= remove_quantity
+                products_in_cart[str(pk)]['quantity'] -= remove_quantity
             request.session.modified = True
     return redirect('New_Shop:cart')

@@ -32,8 +32,13 @@ class NewUserForm(UserCreationForm):
         return user
 
 
+class AddressForm(forms.Form):
+    Email = forms.EmailField()
+    Mobile = forms.IntegerField()
+    Address = forms.CharField(max_length=500)
+
+
 class SubscriberForm(forms.ModelForm):
     class Meta:
         model = SubscribedUser
         fields = ('email', 'name')
-

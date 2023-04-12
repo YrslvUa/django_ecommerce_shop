@@ -1,6 +1,8 @@
 {% extends 'base.html' %}
 {% load static %}
 {% block title %} Shopping Cart {% endblock %}
+{% load crispy_forms_filters %}
+{% load crispy_forms_tags %}
 
 {% block content %}
 <div class="container">
@@ -59,8 +61,18 @@
 <br><br><br>
 <div style="text-align: center;">
   <button class="button button2">Total {{total}}</button>
-  <a href="/customer-address"><button class="button" ><span>Purchase </span></button></a>
 </div>
 
+    {%if products%}
+<form method="POST">
+		{% csrf_token %}
+		{{ addressForm|crispy }}
+		<button class="btn btn-primary" type="submit">Proceed To Pay</button>
+	</form>
+{%else%}
+<br><br>
+<h1 style="text-align:center; color:red;"> First Add Product In Cart </h1>
+<br><br><br><br><br><br><br><br><br><br>
+{%endif%}
 
 {% endblock content %}

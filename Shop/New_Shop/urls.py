@@ -25,7 +25,8 @@ urlpatterns = [
     path("password_reset/", password_reset_request, name="password_reset"),
     path('subscribe/', subscribe, name='subscribe'),
 
-    path('cart/', cart_view, name='cart'),
+    path('cart/', cart, name='cart'),
     path('add_to_cart/<int:pk>/', add_to_cart, name='add_to_cart'),
     path('remove_from_cart/<int:pk>/', remove_from_cart, name='remove_from_cart'),
+    # path('payment-success', views.payment_success_view,name='payment-success'),
 ]
