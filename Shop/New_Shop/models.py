@@ -163,3 +163,21 @@ class SubscribedUser(models.Model):
 
     def __str__(self):
         return self.email
+
+
+class PromoCode(models.Model):
+    promo_code = models.CharField(max_length=20, unique=True, default='code')
+    discount = models.DecimalField(max_digits=5, decimal_places=2)
+    start_date = models.DateTimeField(default=timezone.now)
+    end_date = models.DateTimeField()
+    max_use = models.PositiveIntegerField(default=1)
+    used_count = models.PositiveIntegerField(default=0)
+
+    def __str__(self):
+        return self.promo_code
+
+    def is_valid(self):
+        return self.used_count < self.max_use
+
+    def is_expired(self):
+        return timezone.now() > self.end_date

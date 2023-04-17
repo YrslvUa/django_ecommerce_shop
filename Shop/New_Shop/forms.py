@@ -3,6 +3,9 @@ from New_Shop.models import *
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 
+from crispy_forms.helper import FormHelper
+from crispy_forms.layout import Layout, Submit, Row, Column
+
 
 class ProductForm(forms.ModelForm):
     class Meta:
@@ -32,13 +35,44 @@ class NewUserForm(UserCreationForm):
         return user
 
 
-class AddressForm(forms.Form):
-    Email = forms.EmailField()
-    Mobile = forms.IntegerField()
-    Address = forms.CharField(max_length=500)
-
-
 class SubscriberForm(forms.ModelForm):
     class Meta:
         model = SubscribedUser
         fields = ('email', 'name')
+
+
+class AddressForm(forms.Form):
+    first_name = forms.CharField(label='First name', max_length=100)
+    last_name = forms.CharField(label='Last name', max_length=100)
+    email = forms.EmailField(label='Email', required=False)
+    city = forms.CharField(label='City', max_length=100)
+    house = forms.CharField(label='House', max_length=100)
+    apartment = forms.CharField(label='Apartment', max_length=100)
+    index = forms.CharField(label='Index', max_length=100, required=False)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_class = 'row g-3'
+        self.helper.label_class = 'col-sm-6'
+        self.helper.field_class = 'col-sm-6'
+        self.helper.layout = Layout(
+            Row(
+                Column('first_name', css_class='form-group'),
+                Column('last_name', css_class='form-group'),
+                css_class='form-row'
+            ),
+            'email',
+            'city',
+            Row(
+                Column('house', css_class='form-group col-md-3'),
+                Column('apartment', css_class='form-group col-md-3'),
+                Column('index', css_class='form-group col-md-3'),
+                css_class='form-row'
+            ),
+            Submit('submit', 'Submit')
+        )
+
+
+class PromoCodeForm(forms.Form):
+    promo_code = forms.CharField(max_length=20)

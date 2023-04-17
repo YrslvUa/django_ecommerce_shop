@@ -253,9 +253,50 @@ def subscribe(request):
         return redirect(request.META.get("HTTP_REFERER", 'New_Shop:home_page'))
 
 
+# def cart(request):
+#     products = []
+#     total = 0
+#
+#     if 'cart' in request.session:
+#         products_in_cart = request.session['cart']
+#         if products_in_cart:
+#             product_ids = list(products_in_cart.keys())
+#             products = Product.objects.filter(id__in=product_ids)
+#             for p in products:
+#                 p.quantity = products_in_cart[str(p.id)]['quantity']
+#                 total += p.price * p.quantity
+#
+#     addressForm = AddressForm()
+#     if request.method == 'POST':
+#         addressForm = AddressForm(request.POST)
+#         if addressForm.is_valid():
+#             email = addressForm.cleaned_data['Email']
+#             mobile = addressForm.cleaned_data['Mobile']
+#             address = addressForm.cleaned_data['Address']
+#
+#             request.session['email'] = email
+#             request.session['mobile'] = mobile
+#             request.session['address'] = address
+#             request.session.save()
+#
+#             return render(request, 'cart/cart.html', {'total': total})
+#     if products:
+#         return render(request, 'cart/cart.html',
+#                       {'products': products, 'total': total,
+#                        'addressForm': addressForm})
+#     else:
+#         return render(request, 'cart/cart.html', {'products': products})
+
+
+from django.shortcuts import render, redirect
+from .models import Product, PromoCode
+from .forms import AddressForm, PromoCodeForm
+
 def cart(request):
     products = []
     total = 0
+    promo_code = None
+    promo_discount = 0
 
     if 'cart' in request.session:
         products_in_cart = request.session['cart']
@@ -267,25 +308,47 @@ def cart(request):
                 total += p.price * p.quantity
 
     addressForm = AddressForm()
+    promoCodeForm = PromoCodeForm()
+
     if request.method == 'POST':
-        addressForm = AddressForm(request.POST)
-        if addressForm.is_valid():
-            email = addressForm.cleaned_data['Email']
-            mobile = addressForm.cleaned_data['Mobile']
-            address = addressForm.cleaned_data['Address']
+        if 'promo_code' in request.POST:
+            promoCodeForm = PromoCodeForm(request.POST)
+            if promoCodeForm.is_valid():
+                code = promoCodeForm.cleaned_data['code']
+                try:
+                    promo_code = PromoCode.objects.get(code=code)
+                except PromoCode.DoesNotExist:
+                    promo_code = None
+                if promo_code and promo_code.is_valid() and not promo_code.is_expired():
+                    promo_discount = promo_code.discount
+                    promo_code.used_count += 1
+                    promo_code.save()
 
-            request.session['email'] = email
-            request.session['mobile'] = mobile
-            request.session['address'] = address
-            request.session.save()
+        elif 'address' in request.POST:
+            addressForm = AddressForm(request.POST)
+            if addressForm.is_valid():
+                email = addressForm.cleaned_data['Email']
+                mobile = addressForm.cleaned_data['Mobile']
+                address = addressForm.cleaned_data['Address']
 
-            return render(request, 'cart/payment.html', {'total': total})
+                request.session['email'] = email
+                request.session['mobile'] = mobile
+                request.session['address'] = address
+                request.session.save()
+
+                return render(request, 'cart/cart.html', {'total': total})
+
     if products:
         return render(request, 'cart/cart.html',
                       {'products': products, 'total': total,
-                       'addressForm': addressForm})
+                       'addressForm': addressForm, 'promoCodeForm': promoCodeForm,
+                       'promo_code': promo_code, 'promo_discount': promo_discount})
     else:
-        return render(request, 'cart/cart.html', {'products': products})
+        return render(request, 'cart/cart.html', {'products': products,
+                                                  'promoCodeForm': promoCodeForm,
+                                                  'promo_code': promo_code,
+                                                  'promo_discount': promo_discount})
+
 
 
 def add_to_cart(request, pk):

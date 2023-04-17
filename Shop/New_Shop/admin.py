@@ -43,6 +43,11 @@ class SubscribedUsersAdmin(admin.ModelAdmin):
     search_fields = ('email', 'name')
 
 
+class PromoCodeAdmin(admin.ModelAdmin):
+    list_display = ('promo_code', 'discount', 'start_date', 'end_date', 'max_use', 'used_count')
+
+
+admin.site.register(PromoCode, PromoCodeAdmin)
 admin.site.register(Orders, OrderAdmin)
 admin.site.register(Customer, CustomerAdmin)
 admin.site.register(Category, CategoryAdmin)

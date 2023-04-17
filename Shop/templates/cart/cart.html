@@ -1,78 +1,105 @@
 {% extends 'base.html' %}
 {% load static %}
-{% block title %} Shopping Cart {% endblock %}
+{% block head_title %}Cart{% endblock head_title %}
 {% load crispy_forms_filters %}
 {% load crispy_forms_tags %}
 
 {% block content %}
-<div class="container">
-  <div class="panel panel-primary">
-    <div class="panel-heading">
-      <h6 style="text-align:center;" class="panel-title">My Cart</h6>
-    </div>
-    <table class="table table-hover" id="dev-table">
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Image</th>
-          <th>Price</th>
-          <th>Quantity</th>
-            <th>Add</th>
-          <th>Remove From Cart</th>
 
-        </tr>
-      </thead>
-      {% for p in products %}
-  {% if p %}
+<link rel="stylesheet" type="text/css" href="{% static 'css/cart.css' %}">
 
-      <tr>
-        <td> {{p.name}}</td>
-        <td> <img src="{{  p.product_img.url }}" alt="Profile Pic" height="40px" width="40px" /></td>
-        <td>{{p.price}}</td>
+    <body class="bg-light">
+    <div class="container">
+        <div class="py-5 text-center">
+            <h2>Cart</h2>
+            <p class="lead">Didn't forget to add anything to the cart?</p>
+        </div>
 
+        <div class="row g-5">
+            <div class="col-md-5 col-lg-4 order-md-last">
+                <h4 class="d-flex justify-content-between align-items-center mb-3">
+                    <span class="text-primary">Your cart</span>
+                    <span class="badge bg-primary rounded-pill">{{ request.COOKIES.product_count_in_cart }}</span>
+                </h4>
+                <ul class="list-group mb-3">
 
+                    {% for p in products %}
+                        {% if p %}
+                            <li class="list-group-item d-flex justify-content-between lh-sm">
+                                <div class="d-flex align-items-center">
+                                    <img src="{{ p.product_img.url }}" alt="{{p.name}}"
+                                         class="me-3" height="50px" width="50px">
+                                    <div>
+                                        <h6 class="my-0">{{p.name}}</h6>
+                                        <article class="product">
+                                            <form method="post" action="{% url 'New_Shop:add_to_cart' p.id %}">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="quantity"
+                                                       value="{{ object.quantity|default:1 }}">
+                                                <button type="submit">+</button>
+                                            </form>
+                                            <span class="quantity">{{ p.quantity }}</span>
+                                            <form method="post" action="{% url 'New_Shop:remove_from_cart' p.id %}">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="quantity"
+                                                       value="{{ object.quantity|default:1 }}">
+                                                <button type="submit">-</button>
+                                            </form>
+                                        </article>
+                                    </div>
+                                </div>
+                                <span class="text-muted">{{p.price}}</span>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
 
-        <td>{{ p.quantity }}</td>
-           <td>
-          <form method="post" action="{% url 'New_Shop:add_to_cart' p.id %}">
+                    <li class="list-group-item d-flex justify-content-between bg-light">
+                        <div class="text-success">
+                            <h6 class="my-0">Promo code</h6>
+                            <small>{{ promo_code }}</small>
+                        </div>
+                        <span class="text-success">{{ promo_discount }}</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span>Total</span>
+                        <strong>{{total}}</strong>
+                    </li>
+                </ul>
+                <form class="card p-2">
+                    <div class="input-group">
+                        <label>
+                            <form method="post" action="{% url 'New_Shop:cart' %}">
   {% csrf_token %}
-  <label for="quantity">Quantity:</label>
-  <input type="number" name="quantity" id="quantity" min="1" value="{{ object.quantity|default:1 }}">
-  <button type="submit">Add to Cart</button>
+  {{ promoCodeForm.as_p }}
+  <button type="submit">Apply Promo Code</button>
 </form>
-          </td>
- <td>
-          <form method="post" action="{% url 'New_Shop:remove_from_cart' p.id %}">
-  {% csrf_token %}
-  <label for="quantity">Quantity:</label>
-  <input type="number" name="quantity" id="quantity" min="1" value="{{ object.quantity|default:1 }}">
-  <button type="submit">Remove from Cart</button>
-</form>
-      </td>
-      </tr>
-      {%else%}
-      <br><br><br>
-      <h1>no products</h1>
-      {% endif %}
-      {% endfor %}
-    </table>
-  </div>
-</div>
-<br><br><br>
-<div style="text-align: center;">
-  <button class="button button2">Total {{total}}</button>
-</div>
+{#                            <form method="POST">#}
+{#                                {% csrf_token %}#}
+{#                                {{ promoCodeForm.as_table }}#}
+{#                                <button type="submit" class="btn btn-secondary">Redeem</button>#}
+{#                            </form>#}
+                        </label>
 
-    {%if products%}
-<form method="POST">
-		{% csrf_token %}
-		{{ addressForm|crispy }}
-		<button class="btn btn-primary" type="submit">Proceed To Pay</button>
-	</form>
-{%else%}
-<br><br>
-<h1 style="text-align:center; color:red;"> First Add Product In Cart </h1>
-<br><br><br><br><br><br><br><br><br><br>
-{%endif%}
+                    </div>
+                </form>
+            </div>
+
+            <div class="col-md-7 col-lg-8">
+                <h4 class="mb-3">Shipping address</h4>
+                <form class="needs-validation" novalidate>
+                    <div class="row g-3">
+                        {%if products%}
+                            <form method="POST">
+                                {% csrf_token %}
+                                {{ addressForm|crispy }}
+                                <button class="btn btn-primary" type="submit">Proceed To Pay</button>
+                            </form>
+                        {%else%}
+                            <br><br>
+                            <h1 style="text-align:center; color:red;"> First Add Product In Cart </h1>
+                            <br><br><br><br><br><br><br><br><br><br>
+                        {%endif%}
+                    </div>
+                </form>
 
 {% endblock content %}
