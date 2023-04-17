@@ -1,0 +1,14 @@
+.product {
+  display: flex;
+  align-items: center;
+}
+
+.product button {
+  font-size: 0.7rem;
+  padding: 0.2rem 0.5rem;
+}
+
+.product .quantity {
+  font-size: 1rem;
+  padding: 0 0.5rem;
+}
