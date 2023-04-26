@@ -2,8 +2,9 @@ from django.conf import settings
 from django.db import models
 from django.urls import reverse
 from django.utils.html import mark_safe
-from django.contrib.auth.models import AbstractUser, User
+from django.contrib.auth.models import User
 from django.utils import timezone
+from slugger import AutoSlugField
 
 
 def upload_location_customer(instance, filename):
@@ -99,7 +100,7 @@ class Product(models.Model):
 
     )
     name = models.CharField(max_length=200, blank=False, db_index=True)
-    slug = models.SlugField(max_length=200, db_index=True, null=True)
+    slug = AutoSlugField(populate_from='name', unique=True, null=True)
     price = models.DecimalField(max_digits=10, decimal_places=2, default=00.00)
     description = models.TextField(max_length=600, blank=False)
     url = models.URLField(max_length=200, null=True)
@@ -108,7 +109,7 @@ class Product(models.Model):
         upload_to=upload_location_product,
         blank=True, null=True,
         height_field='height_field',
-        width_field='width_field',
+        width_field='width_field'
     )
     height_field = models.IntegerField(default=0)
     width_field = models.IntegerField(default=0)
@@ -135,7 +136,7 @@ class Product(models.Model):
         return self.name
 
 
-class Orders(models.Model):
+class Order(models.Model):
     STATUS = (
         ('Pending', 'Pending'),
         ('Order Confirmed', 'Order Confirmed'),
@@ -144,11 +145,16 @@ class Orders(models.Model):
     )
     customer = models.ForeignKey('Customer', on_delete=models.CASCADE, null=True)
     product = models.ForeignKey('Product', on_delete=models.CASCADE, null=True)
+    first_name = models.CharField(max_length=100, null=True)
+    last_name = models.CharField(max_length=100, null=True)
     email = models.CharField(max_length=50, null=True)
-    address = models.CharField(max_length=500, null=True)
-    mobile = models.CharField(max_length=20, null=True)
+    city = models.CharField(max_length=100, null=True)
+    house = models.CharField(max_length=100, null=True)
+    apartment = models.CharField(max_length=100, null=True)
     order_date = models.DateField(auto_now_add=True, null=True)
     status = models.CharField(max_length=50, null=True, choices=STATUS)
+    quantity = models.PositiveIntegerField(null=True, default=1)
+    total_price = models.DecimalField(max_digits=10, decimal_places=2, null=True)
 
     class Meta:
         ordering = ('customer',)
@@ -167,7 +173,7 @@ class SubscribedUser(models.Model):
 
 class PromoCode(models.Model):
     promo_code = models.CharField(max_length=20, unique=True, default='code')
-    discount = models.DecimalField(max_digits=5, decimal_places=2)
+    discount = models.DecimalField(max_digits=5, decimal_places=2, default=00.00)
     start_date = models.DateTimeField(default=timezone.now)
     end_date = models.DateTimeField()
     max_use = models.PositiveIntegerField(default=1)

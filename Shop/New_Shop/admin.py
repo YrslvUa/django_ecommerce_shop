@@ -25,16 +25,15 @@ class CategoryAdmin(admin.ModelAdmin):
 
 
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ('name', 'price', 'category', 'stock', 'available', 'created', 'updated', 'img_preview')
+    list_display = ('name', 'slug', 'price', 'category', 'stock', 'available', 'created', 'updated', 'img_preview')
     list_filter = ('available', 'created', 'updated')
     list_editable = ('price', 'stock', 'available')
     search_fields = ('name',)
-    readonly_fields = ('img_preview',)
-    prepopulated_fields = {'slug': ('name',)}
+    readonly_fields = ('img_preview', 'slug')
 
 
 class OrderAdmin(admin.ModelAdmin):
-    list_display = ('customer', 'product', 'email', 'address', 'mobile', 'order_date', 'status')
+    list_display = ('customer', 'product', 'email', 'order_date', 'status')
     search_fields = ('customer',)
 
 
@@ -48,7 +47,7 @@ class PromoCodeAdmin(admin.ModelAdmin):
 
 
 admin.site.register(PromoCode, PromoCodeAdmin)
-admin.site.register(Orders, OrderAdmin)
+admin.site.register(Order, OrderAdmin)
 admin.site.register(Customer, CustomerAdmin)
 admin.site.register(Category, CategoryAdmin)
 admin.site.register(Product, ProductAdmin)

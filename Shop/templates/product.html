@@ -10,7 +10,8 @@
             <a href="{{ object.get_absolute_url }}">
                 <img src="{{ object.product_img.url }}" class="card-img-top" alt="img"></a>
         {% else %}
-                <img src="{% static 'img/no_image.png' %}" class="img-fluid rounded-start" alt="img">
+            <a href="{{ object.get_absolute_url }}">
+                <img src="{% static 'img/no_image.png' %}" class="img-fluid rounded-start" alt="img"></a>
         {% endif %}
         <div class="card-body">
             <h5 class="card-title">{{ object.name }}</h5>

@@ -68,11 +68,13 @@
                 <form class="card p-2">
                     <div class="input-group">
                         <label>
-                            <form method="post" action="{% url 'New_Shop:cart' %}">
-  {% csrf_token %}
-  {{ promoCodeForm.as_p }}
-  <button type="submit">Apply Promo Code</button>
-</form>
+{#                            <form method="GET" action="{% url 'New_Shop:apply_promo_code' %}">#}
+{#    {% csrf_token %}#}
+{#    {{ promoCodeForm.as_p }}#}
+{#    <button type="submit">Застосувати промокод</button>#}
+{#  </form>#}
+
+
 {#                            <form method="POST">#}
 {#                                {% csrf_token %}#}
 {#                                {{ promoCodeForm.as_table }}#}
@@ -86,20 +88,20 @@
 
             <div class="col-md-7 col-lg-8">
                 <h4 class="mb-3">Shipping address</h4>
-                <form class="needs-validation" novalidate>
                     <div class="row g-3">
                         {%if products%}
-                            <form method="POST">
-                                {% csrf_token %}
-                                {{ addressForm|crispy }}
-                                <button class="btn btn-primary" type="submit">Proceed To Pay</button>
-                            </form>
+                            <form method="POST" action="{% url 'New_Shop:cart' %}">
+  {% csrf_token %}
+  {{ address_form|crispy }}
+  <button type="submit" class="btn btn-primary">Submit</button>
+</form>
+
                         {%else%}
                             <br><br>
                             <h1 style="text-align:center; color:red;"> First Add Product In Cart </h1>
                             <br><br><br><br><br><br><br><br><br><br>
                         {%endif%}
                     </div>
-                </form>
+
 
 {% endblock content %}
