@@ -33,7 +33,7 @@ class ProductAdmin(admin.ModelAdmin):
 
 
 class OrderAdmin(admin.ModelAdmin):
-    list_display = ('customer', 'product', 'email', 'order_date', 'status')
+    list_display = ('customer', 'product', 'email', 'status', 'created', 'updated')
     search_fields = ('customer',)
 
 

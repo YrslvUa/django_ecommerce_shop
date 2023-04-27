@@ -27,8 +27,14 @@
                         {% if p %}
                             <li class="list-group-item d-flex justify-content-between lh-sm">
                                 <div class="d-flex align-items-center">
-                                    <img src="{{ p.product_img.url }}" alt="{{p.name}}"
-                                         class="me-3" height="50px" width="50px">
+                                    {% if p.product_img %}
+                                        <img src="{{ p.product_img.url }}" alt="{{p.name}}"
+                                             class="me-3" height="50px" width="50px">
+                                    {% else %}
+                                        <img src="{% static 'img/no_image.png' %}" class="me-3"
+                                             alt="img" height="50px" width="50px">
+                                    {% endif %}
+
                                     <div>
                                         <h6 class="my-0">{{p.name}}</h6>
                                         <article class="product">
@@ -91,11 +97,10 @@
                     <div class="row g-3">
                         {%if products%}
                             <form method="POST" action="{% url 'New_Shop:cart' %}">
-  {% csrf_token %}
-  {{ address_form|crispy }}
-  <button type="submit" class="btn btn-primary">Submit</button>
-</form>
-
+                                {% csrf_token %}
+                                {{ address_form|crispy }}
+                                <button type="submit" class="btn btn-primary">Submit</button>
+                            </form>
                         {%else%}
                             <br><br>
                             <h1 style="text-align:center; color:red;"> First Add Product In Cart </h1>

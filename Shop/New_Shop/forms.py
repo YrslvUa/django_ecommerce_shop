@@ -45,17 +45,8 @@ class SubscriberForm(forms.ModelForm):
 class AddressForm(forms.ModelForm):
     class Meta:
         model = Order
-        fields = ['customer', 'product', 'first_name', 'last_name', 'email', 'city', 'house', 'apartment']
-        widgets = {
-            'customer': forms.HiddenInput(),
-            'product': forms.HiddenInput(),
-            'first_name': forms.TextInput(attrs={'class': 'form-control'}),
-            'last_name': forms.TextInput(attrs={'class': 'form-control'}),
-            'email': forms.TextInput(attrs={'class': 'form-control'}),
-            'city': forms.TextInput(attrs={'class': 'form-control'}),
-            'house': forms.TextInput(attrs={'class': 'form-control'}),
-            'apartment': forms.TextInput(attrs={'class': 'form-control'}),
-        }
+        fields = ['first_name', 'last_name', 'email', 'city', 'house', 'apartment']
+
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

@@ -56,7 +56,7 @@ def upload_location_category(instance, filename):
 class Category(models.Model):
     name = models.CharField(max_length=200, blank=False, db_index=True)
     description = models.TextField(max_length=600, blank=False, null=True)
-    slug = models.SlugField(max_length=200, db_index=True, unique=True, null=True)
+    slug = AutoSlugField(populate_from='name', unique=True, null=True)
     category_img = models.ImageField(
         upload_to=upload_location_category,
         blank=True,
@@ -151,13 +151,14 @@ class Order(models.Model):
     city = models.CharField(max_length=100, null=True)
     house = models.CharField(max_length=100, null=True)
     apartment = models.CharField(max_length=100, null=True)
-    order_date = models.DateField(auto_now_add=True, null=True)
     status = models.CharField(max_length=50, null=True, choices=STATUS)
     quantity = models.PositiveIntegerField(null=True, default=1)
     total_price = models.DecimalField(max_digits=10, decimal_places=2, null=True)
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
 
     class Meta:
-        ordering = ('customer',)
+        ordering = ('-created',)
         verbose_name = 'Order'
         verbose_name_plural = "Orders"
 

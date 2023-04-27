@@ -262,44 +262,25 @@ def cart(request):
     if request.user.is_authenticated:
         customer = Customer.objects.get(user=request.user)
     else:
-        customer = None
+        guest_user = User.objects.get_or_create(username='guest')
+        customer = Customer.objects.get_or_create(user=guest_user)
 
-    address_form = AddressForm(initial={'customer': customer, 'product': products})
     promo_code_form = PromoCodeForm()
+    address_form = AddressForm()
 
     if request.method == 'POST':
-        # address_form = AddressForm(request.POST)
+        address_form = AddressForm(request.POST)
+        quantity = request.COOKIES.get('product_count_in_cart', 0)
+
         if address_form.is_valid():
             instance = address_form.save(commit=False)
+            instance.products = products
             instance.customer = customer
+            instance.quantity = quantity
             instance.total_price = total
             instance.save()
 
-            for product in products:
-                order = Order.objects.create(
-                    customer=customer,
-                    product=product,
-                    first_name=instance.first_name,
-                    last_name=instance.last_name,
-                    email=instance.email,
-                    city=instance.city,
-                    house=instance.house,
-                    apartment=instance.apartment,
-                    quantity=product.quantity,
-                    total_price=product.price * product.quantity,
-                    status='Pending'
-                )
-                order.save()
-
-            request.session.pop('cart', None)
-            request.session.pop('promo_code', None)
-
             return redirect('order_success')
-        # if address_form.is_valid():
-        #     instance = address_form.save(commit=False)
-        #     instance.save()
-        #     save_address_data_to_session(request, address_form)
-        #     return render(request, 'cart/cart.html', context)
     context = {'products': products, 'total': total, 'address_form': address_form, 'promo_code_form': promo_code_form}
     return render(request, 'cart/cart.html', context)
 
@@ -329,69 +310,7 @@ def get_discount(request):
     return 0
 
 
-def save_address_data_to_session(request, address_form):
-    address_data = ['first_name', 'last_name', 'email', 'city', 'house', 'apartment']
-    for field in address_data:
-        request.session[field] = address_form.cleaned_data[field]
 
-    request.session.save()
-
-
-# def cart(request):
-#     products = []
-#     total = 0
-#     discount = 0
-#
-#     if 'cart' in request.session:
-#         products_in_cart = request.session['cart']
-#         if products_in_cart:
-#             product_ids = list(products_in_cart.keys())
-#             products = Product.objects.filter(id__in=product_ids)
-#             for p in products:
-#                 p.quantity = products_in_cart[str(p.id)]['quantity']
-#                 total += p.price * p.quantity
-#
-#     if 'promo_code' in request.session:
-#         promo_code = request.session['promo_code']
-#         try:
-#             promo_obj = PromoCode.objects.get(promo_code=promo_code)
-#             if not promo_obj.is_expired() and promo_obj.is_valid():
-#                 discount = promo_obj.discount
-#         except PromoCode.DoesNotExist:
-#             pass
-#
-#     total -= discount  # Subtract discount from total here
-#
-#     addressForm = AddressForm()
-#     promoCodeForm = PromoCodeForm()
-#     if request.method == 'POST':
-#         addressForm = AddressForm(request.POST)
-#         if addressForm.is_valid():
-#             first_name = addressForm.cleaned_data['first_name']
-#             last_name = addressForm.cleaned_data['last_name']
-#             email = addressForm.cleaned_data['email']
-#             city = addressForm.cleaned_data['city']
-#             house = addressForm.cleaned_data['house']
-#             apartment = addressForm.cleaned_data['apartment']
-#             request.session['first_name'] = first_name
-#             request.session['last_name'] = last_name
-#             request.session['email'] = email
-#             request.session['city'] = city
-#             request.session['house'] = house
-#             request.session['apartment'] = apartment
-#
-#             request.session.save()
-#
-#             return render(request, 'cart/cart.html', {'total': total})
-#     if products:
-#         return render(request, 'cart/cart.html',
-#                       {'products': products, 'total': total,
-#                        'addressForm': addressForm,
-#                        'promoCodeForm': promoCodeForm})
-#     else:
-#         return render(request, 'cart/cart.html', {'products': products})
-
-#
 # def apply_promo_code(request):
 #     promo_code = request.GET.get('promo_code') or request.POST.get('promo_code')
 #     if promo_code:
