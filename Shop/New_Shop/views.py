@@ -261,9 +261,10 @@ def cart(request):
 
     if request.user.is_authenticated:
         customer = Customer.objects.get(user=request.user)
+        print(customer)
     else:
-        guest_user = User.objects.get_or_create(username='guest')
-        customer = Customer.objects.get_or_create(user=guest_user)
+        guest_user, created = User.objects.get_or_create(username='guest')
+        customer, created = Customer.objects.get_or_create(user=guest_user)
 
     promo_code_form = PromoCodeForm()
     address_form = AddressForm()
@@ -274,13 +275,16 @@ def cart(request):
 
         if address_form.is_valid():
             instance = address_form.save(commit=False)
-            instance.products = products
             instance.customer = customer
             instance.quantity = quantity
             instance.total_price = total
+            instance.status = 'Pending'
             instance.save()
 
-            return redirect('order_success')
+            for p in products:
+                instance.product.add(p)
+
+            return redirect('new_shop:payment')
     context = {'products': products, 'total': total, 'address_form': address_form, 'promo_code_form': promo_code_form}
     return render(request, 'cart/cart.html', context)
 
@@ -308,7 +312,6 @@ def get_discount(request):
         pass
 
     return 0
-
 
 
 # def apply_promo_code(request):
@@ -354,3 +357,7 @@ def remove_from_cart(request, pk):
                 products_in_cart[str(pk)]['quantity'] -= remove_quantity
             request.session.modified = True
     return redirect('New_Shop:cart')
+
+
+def payment(request):
+    return render(request, 'cart/payment.html')

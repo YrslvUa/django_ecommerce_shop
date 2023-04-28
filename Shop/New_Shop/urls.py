@@ -29,5 +29,6 @@ urlpatterns = [
     # path('apply_promo_code/', apply_promo_code, name='apply_promo_code'),
     path('add_to_cart/<int:pk>/', add_to_cart, name='add_to_cart'),
     path('remove_from_cart/<int:pk>/', remove_from_cart, name='remove_from_cart'),
+    path('payment/', payment, name='payment'),
     # path('payment-success', payment_success_view,name='payment-success'),
 ]

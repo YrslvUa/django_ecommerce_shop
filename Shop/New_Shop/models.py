@@ -144,7 +144,7 @@ class Order(models.Model):
         ('Delivered', 'Delivered'),
     )
     customer = models.ForeignKey('Customer', on_delete=models.CASCADE, null=True)
-    product = models.ForeignKey('Product', on_delete=models.CASCADE, null=True)
+    product = models.ManyToManyField('Product', blank=True)
     first_name = models.CharField(max_length=100, null=True)
     last_name = models.CharField(max_length=100, null=True)
     email = models.CharField(max_length=50, null=True)
@@ -161,6 +161,12 @@ class Order(models.Model):
         ordering = ('-created',)
         verbose_name = 'Order'
         verbose_name_plural = "Orders"
+
+    def customer_username(self):
+        return self.customer.user.username
+
+    def __str__(self):
+        return self.customer.user.username
 
 
 class SubscribedUser(models.Model):

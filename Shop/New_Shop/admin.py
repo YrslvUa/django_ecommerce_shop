@@ -32,9 +32,17 @@ class ProductAdmin(admin.ModelAdmin):
     readonly_fields = ('img_preview', 'slug')
 
 
+
+class ProductInline(admin.TabularInline):
+    model = Order.product.through
+    extra = 1
+
+
 class OrderAdmin(admin.ModelAdmin):
-    list_display = ('customer', 'product', 'email', 'status', 'created', 'updated')
-    search_fields = ('customer',)
+    list_display = ('customer_username', 'email', 'status', 'created', 'updated')
+    search_fields = ('customer_username',)
+    list_editable = ('status',)
+    inlines = [ProductInline]
 
 
 class SubscribedUsersAdmin(admin.ModelAdmin):
