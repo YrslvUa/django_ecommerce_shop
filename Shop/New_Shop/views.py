@@ -257,11 +257,8 @@ def cart(request):
     if 'promo_code' in request.session:
         discount = get_discount(request)
 
-    total -= discount
-
     if request.user.is_authenticated:
         customer = Customer.objects.get(user=request.user)
-        print(customer)
     else:
         guest_user, created = User.objects.get_or_create(username='guest')
         customer, created = Customer.objects.get_or_create(user=guest_user)
@@ -271,12 +268,31 @@ def cart(request):
 
     if request.method == 'POST':
         address_form = AddressForm(request.POST)
-        quantity = request.COOKIES.get('product_count_in_cart', 0)
+        promo_code_form = PromoCodeForm(request.POST)
 
-        if address_form.is_valid():
+        if address_form.is_valid() and promo_code_form.is_valid():
+            quantity = request.COOKIES.get('product_count_in_cart', 0)
+
             instance = address_form.save(commit=False)
             instance.customer = customer
             instance.quantity = quantity
+
+            promo_code = promo_code_form.cleaned_data['promo_code']
+            try:
+                promo_obj = PromoCode.objects.get(promo_code=promo_code)
+                if promo_obj.is_valid() and not promo_obj.is_expired():
+                    request.session['promo_code'] = promo_code
+                    promo_obj.used_count += 1
+                    promo_obj.save()
+                    discount = promo_obj.discount
+                    total -= discount
+
+                    applied_promo_code = AppliedPromoCode(order=instance, promo_code=promo_obj)
+                    applied_promo_code.save()
+
+            except PromoCode.DoesNotExist:
+                pass
+
             instance.total_price = total
             instance.status = 'Pending'
             instance.save()
@@ -306,7 +322,7 @@ def get_discount(request):
     promo_code = request.session['promo_code']
     try:
         promo_obj = PromoCode.objects.get(promo_code=promo_code)
-        if not promo_obj.is_expired() and promo_obj.is_valid():
+        if promo_obj.is_valid() and not promo_obj.is_expired():
             return promo_obj.discount
     except PromoCode.DoesNotExist:
         pass

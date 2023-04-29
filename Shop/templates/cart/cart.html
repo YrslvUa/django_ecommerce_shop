@@ -71,7 +71,6 @@
                         <strong>{{total}}</strong>
                     </li>
                 </ul>
-                <form class="card p-2">
                     <div class="input-group">
                         <label>
 {#                            <form method="GET" action="{% url 'New_Shop:apply_promo_code' %}">#}
@@ -81,15 +80,14 @@
 {#  </form>#}
 
 
-{#                            <form method="POST">#}
-{#                                {% csrf_token %}#}
-{#                                {{ promoCodeForm.as_table }}#}
-{#                                <button type="submit" class="btn btn-secondary">Redeem</button>#}
-{#                            </form>#}
+                            <form method="POST">
+                                {% csrf_token %}
+                                {{ promo_code_form.as_table }}
+                                <button type="submit" class="btn btn-secondary">Redeem</button>
+                            </form>
                         </label>
-
                     </div>
-                </form>
+
             </div>
 
             <div class="col-md-7 col-lg-8">

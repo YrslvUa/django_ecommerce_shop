@@ -194,3 +194,12 @@ class PromoCode(models.Model):
 
     def is_expired(self):
         return timezone.now() > self.end_date
+
+
+class AppliedPromoCode(models.Model):
+    order = models.OneToOneField(Order, on_delete=models.CASCADE)
+    promo_code = models.ForeignKey(PromoCode, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"{self.order} - {self.promo_code}"
+
