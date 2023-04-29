@@ -47,7 +47,6 @@ class AddressForm(forms.ModelForm):
         model = Order
         fields = ['first_name', 'last_name', 'email', 'city', 'house', 'apartment']
 
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
@@ -70,5 +69,7 @@ class AddressForm(forms.ModelForm):
             Submit('submit', 'Submit', css_class='btn btn-primary'))
 
 
-class PromoCodeForm(forms.Form):
-    promo_code = forms.CharField(max_length=20, widget=forms.TextInput(attrs={'name': 'promo_code'}))
+class PromoCodeForm(forms.ModelForm):
+    class Meta:
+        model = PromoCode
+        fields = ['promo_code', ]
