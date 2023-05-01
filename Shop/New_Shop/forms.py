@@ -69,7 +69,7 @@ class AddressForm(forms.ModelForm):
             Submit('submit', 'Submit', css_class='btn btn-primary'))
 
 
-class PromoCodeForm(forms.ModelForm):
-    class Meta:
-        model = PromoCode
-        fields = ['promo_code', ]
+# class PromoCodeForm(forms.ModelForm):
+#     class Meta:
+#         model = PromoCode
+#         fields = ['promo_code', ]

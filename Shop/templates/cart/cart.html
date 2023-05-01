@@ -61,7 +61,7 @@
 
                     <li class="list-group-item d-flex justify-content-between bg-light">
                         <div class="text-success">
-                            <h6 class="my-0">Promo code</h6>
+{#                            <h6 class="my-0">Promo code</h6>#}
                             <small>{{ promo_code }}</small>
                         </div>
                         <span class="text-success">{{ promo_discount }}</span>
@@ -73,18 +73,7 @@
                 </ul>
                     <div class="input-group">
                         <label>
-{#                            <form method="GET" action="{% url 'New_Shop:apply_promo_code' %}">#}
-{#    {% csrf_token %}#}
-{#    {{ promoCodeForm.as_p }}#}
-{#    <button type="submit">Застосувати промокод</button>#}
-{#  </form>#}
 
-
-                            <form method="POST">
-                                {% csrf_token %}
-                                {{ promo_code_form.as_table }}
-                                <button type="submit" class="btn btn-secondary">Redeem</button>
-                            </form>
                         </label>
                     </div>
 

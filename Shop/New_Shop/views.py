@@ -254,45 +254,23 @@ def cart(request):
     if 'cart' in request.session:
         products, total = get_products_and_total(request)
 
-    if 'promo_code' in request.session:
-        discount = get_discount(request)
-
     if request.user.is_authenticated:
         customer = Customer.objects.get(user=request.user)
     else:
         guest_user, created = User.objects.get_or_create(username='guest')
         customer, created = Customer.objects.get_or_create(user=guest_user)
 
-    promo_code_form = PromoCodeForm()
     address_form = AddressForm()
 
     if request.method == 'POST':
         address_form = AddressForm(request.POST)
-        promo_code_form = PromoCodeForm(request.POST)
 
-        if address_form.is_valid() and promo_code_form.is_valid():
+        if address_form.is_valid():
             quantity = request.COOKIES.get('product_count_in_cart', 0)
 
             instance = address_form.save(commit=False)
             instance.customer = customer
             instance.quantity = quantity
-
-            promo_code = promo_code_form.cleaned_data['promo_code']
-            try:
-                promo_obj = PromoCode.objects.get(promo_code=promo_code)
-                if promo_obj.is_valid() and not promo_obj.is_expired():
-                    request.session['promo_code'] = promo_code
-                    promo_obj.used_count += 1
-                    promo_obj.save()
-                    discount = promo_obj.discount
-                    total -= discount
-
-                    applied_promo_code = AppliedPromoCode(order=instance, promo_code=promo_obj)
-                    applied_promo_code.save()
-
-            except PromoCode.DoesNotExist:
-                pass
-
             instance.total_price = total
             instance.status = 'Pending'
             instance.save()
@@ -300,8 +278,8 @@ def cart(request):
             for p in products:
                 instance.product.add(p)
 
-            return redirect('new_shop:payment')
-    context = {'products': products, 'total': total, 'address_form': address_form, 'promo_code_form': promo_code_form}
+            return redirect('New_Shop:payment')
+    context = {'products': products, 'total': total, 'address_form': address_form}
     return render(request, 'cart/cart.html', context)
 
 
@@ -316,35 +294,6 @@ def get_products_and_total(request):
         total += p.price * p.quantity
 
     return products, total
-
-
-def get_discount(request):
-    promo_code = request.session['promo_code']
-    try:
-        promo_obj = PromoCode.objects.get(promo_code=promo_code)
-        if promo_obj.is_valid() and not promo_obj.is_expired():
-            return promo_obj.discount
-    except PromoCode.DoesNotExist:
-        pass
-
-    return 0
-
-
-# def apply_promo_code(request):
-#     promo_code = request.GET.get('promo_code') or request.POST.get('promo_code')
-#     if promo_code:
-#         promo_obj = get_object_or_404(PromoCode, promo_code=promo_code)
-#         if promo_obj.is_expired():
-#             messages.error(request, 'Цей промокод більше не діє.')
-#         elif not promo_obj.is_valid():
-#             messages.error(request, 'Цей промокод було використано максимальну кількість разів.')
-#         else:
-#             request.session['promo_code'] = promo_code
-#             request.session.save()
-#             messages.success(request, 'Промокод успішно застосований.')
-#     else:
-#         messages.error(request, 'Помилка вводу промокоду.')
-#     return redirect('New_Shop:cart')
 
 
 def add_to_cart(request, pk):

@@ -178,28 +178,27 @@ class SubscribedUser(models.Model):
         return self.email
 
 
-class PromoCode(models.Model):
-    promo_code = models.CharField(max_length=20, unique=True, default='code')
-    discount = models.DecimalField(max_digits=5, decimal_places=2, default=00.00)
-    start_date = models.DateTimeField(default=timezone.now)
-    end_date = models.DateTimeField()
-    max_use = models.PositiveIntegerField(default=1)
-    used_count = models.PositiveIntegerField(default=0)
-
-    def __str__(self):
-        return self.promo_code
-
-    def is_valid(self):
-        return self.used_count < self.max_use
-
-    def is_expired(self):
-        return timezone.now() > self.end_date
-
-
-class AppliedPromoCode(models.Model):
-    order = models.OneToOneField(Order, on_delete=models.CASCADE)
-    promo_code = models.ForeignKey(PromoCode, on_delete=models.CASCADE)
-
-    def __str__(self):
-        return f"{self.order} - {self.promo_code}"
-
+# class PromoCode(models.Model):
+#     promo_code = models.CharField(max_length=20, unique=True, default='code')
+#     discount = models.DecimalField(max_digits=5, decimal_places=2, default=00.00)
+#     start_date = models.DateTimeField(default=timezone.now)
+#     end_date = models.DateTimeField()
+#     max_use = models.PositiveIntegerField(default=1)
+#     used_count = models.PositiveIntegerField(default=0)
+#
+#     def __str__(self):
+#         return self.promo_code
+#
+#     def is_valid(self):
+#         return self.used_count < self.max_use
+#
+#     def is_expired(self):
+#         return timezone.now() > self.end_date
+#
+#
+# class AppliedPromoCode(models.Model):
+#     order = models.OneToOneField(Order, on_delete=models.CASCADE)
+#     promo_code = models.ForeignKey(PromoCode, on_delete=models.CASCADE)
+#
+#     def __str__(self):
+#         return f"{self.order} - {self.promo_code}"
