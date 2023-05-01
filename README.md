@@ -8,7 +8,7 @@ Features:
 Product listings: Browse products by category or search by keyword
 Shopping cart: Add products to the cart and adjust quantities as needed
 User authentication: Create an account, log in, and manage your profile information
-Order management: View and manage your orders, including order status and tracking information(In the process of development)
+Order management: View and manage your orders, including order status and tracking information
 Payment processing: Securely process payments(In the process of development)
 Technologies used:
 
