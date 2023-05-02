@@ -17,9 +17,9 @@
         <div class="col-md-8">
             <div class="card-body">
                 <h3 class="card-title">{{ object.name }}</h3>
-                <p>Ціна: {{ object.price }} грн</p>
-                <p>Категорія: {{ object.category }}</p>
-                <p>Опис товару: {{ object.description }}</p>
+                <p>Price: {{ object.price }} грн</p>
+                <p>Category: {{ object.category }}</p>
+                <p>Product description: {{ object.description }}</p>
 
             <form method="post" action="{% url 'New_Shop:add_to_cart' object.id %}">
       {% csrf_token %}
@@ -28,7 +28,6 @@
       <button type="submit">Add</button>
     </form>
 
-                <p>URL: <a class="btn btn-primary" href="{{ object.url }}" target="_blank">Metro</a></p>
                 {% if object.user.get_full_name %}
                     <p class="card-text"><small class="text-muted">{{ object.user.get_full_name }}</small></p>
                 {% endif %}
@@ -41,26 +40,26 @@
 <!--  Start Button group -->
 <div class="text-center">
     <div class="btn-group" role="group" aria-label="Button group with nested dropdown">
-        <a class="btn btn-primary" href="/product/{{ object.category_id }}" role="button">Перейти до всіх продуктів категорії</a>
-        <a class="btn btn-primary" href="/" role="button">Вернутись на домашню сторінку</a>
+        <a class="btn btn-primary" href="/product/{{ object.category_id }}" role="button">Go to all products of the category</a>
+        <a class="btn btn-primary" href="/" role="button">Return to home page</a>
         {% if user.is_staff %}
         <div class="btn-group" role="group">
             <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                Взаємодія з контентом
+                Interaction with content
             </button>
             <ul class="dropdown-menu">
                 {% if perms.New_Shop.can_edit %}
-                    <li><a class="dropdown-item" href="/update/{{ object.id }}">Редагувати</a></li>
+                    <li><a class="dropdown-item" href="/update/{{ object.id }}">Edit</a></li>
                 {% else %}
                     <p class="text-center">You cannot edit items.</p>
                 {% endif %}
                 {% if perms.New_Shop.can_delete %}
-                    <li><a class="dropdown-item" href='/delete/{{ object.id }}'>Видалити</a></li>
+                    <li><a class="dropdown-item" href='/delete/{{ object.id }}'>Delete</a></li>
                 {% else %}
                     <p class="text-center">You cannot delete items.</p>
                 {% endif %}
                 {% if perms.New_Shop.can_add %}
-                    <li><a class="dropdown-item" href="/create/">Добавити новий продукт</a></li>
+                    <li><a class="dropdown-item" href="/create/">Add</a></li>
                 {% else %}
                     <p class="text-center">You cannot add items.</p>
                 {% endif %}

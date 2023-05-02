@@ -20,6 +20,7 @@ from .models import SubscribedUser, Product
 
 def home_page(request):
     category_list = Category.objects.all()
+
     context = {
         'title': 'Shop',
         'categories': category_list
@@ -29,6 +30,7 @@ def home_page(request):
 
 def product(request, category_slug=None):
     query = request.GET.get('q')
+
     if category_slug:
         category = get_object_or_404(Category, slug=category_slug)
         queryset = Product.objects.filter(category=category)
@@ -37,16 +39,19 @@ def product(request, category_slug=None):
             queryset = Product.objects.filter(Q(name__icontains=query) | Q(description__icontains=query))
         else:
             queryset = Product.objects.all()
+
     category_list = Category.objects.all()
     paginator = Paginator(queryset, 2)
     page_request_var = 'page'
     page = request.GET.get(page_request_var)
+
     try:
         queryset = paginator.page(page)
     except PageNotAnInteger:
         queryset = paginator.page(1)
     except EmptyPage:
         queryset = paginator.page(paginator.num_pages)
+
     context = {
         'title': 'Product',
         'objects_list': queryset,
@@ -62,6 +67,7 @@ def detail(request, id_product, product_slug):
                                  slug=product_slug,
                                  available=True)
     category_list = Category.objects.all()
+
     context = {
         'title': 'Detail',
         'object': instance,
@@ -78,16 +84,18 @@ def is_staff_or_superuser(user):
 def create(request):
     form = ProductForm(request.POST or None,
                        request.FILES or None)
+
     if form.is_valid():
         instance = form.save(commit=False)
         instance.user = request.user
         instance.save()
-        messages.success(request, 'Продукт збережено!')
+        messages.success(request, 'Product saved!!')
         messages.info(
-            request, '<a href="/create">Створити</a> ще 1 продукт?',
+            request, '<a href="/create">Create</a> 1 more product?',
             extra_tags='html_safe'
         )
         return HttpResponseRedirect(instance.get_absolute_url())
+
     context = {
         'title': 'Create',
         'form': form
@@ -101,22 +109,24 @@ def update(request, id_product=None):
     form = ProductForm(request.POST or None,
                        request.FILES or None,
                        instance=instance)
+
     if form.is_valid():
         instance = form.save(commit=False)
         instance.save()
         messages.info(
-            request, '<a href="/create">Створити</a> новий продукт?',
+            request, '<a href="/create">Create</a> new product?',
             extra_tags='html_safe'
         )
         messages.info(
-            request, '<a href="/">Вернутись на домашню сторінку?</a>',
+            request, '<a href="/">Return to home page??</a>',
             extra_tags='html_safe'
         )
         messages.success(
-            request, f'<a href="/detail/{id}">Продукт</a> збережено!',
+            request, f'<a href="/detail/{id}">Product</a> saved!',
             extra_tags='html_safe'
         )
         return HttpResponseRedirect(instance.get_absolute_url())
+
     context = {
         'title': 'Update',
         'form': form
@@ -128,7 +138,7 @@ def update(request, id_product=None):
 def delete(request, id_product=None):
     instance = get_object_or_404(Product, id=id_product)
     instance.delete()
-    messages.success(request, 'Продукт видалено!')
+    messages.success(request, 'Product removed!')
     return redirect('New_Shop:home_page')
 
 
@@ -142,12 +152,14 @@ def register_request(request):
             messages.success(request, "Registration successful.")
             return redirect(request.session.get('previous_url', 'New_Shop:home_page'))
         messages.error(request, "Unsuccessful registration. Invalid information.")
+
     form = NewUserForm()
+    request.session['previous_url'] = request.META.get('HTTP_REFERER', 'New_Shop:home_page')
+
     context = {
         'title': 'register',
         'register_form': form
     }
-    request.session['previous_url'] = request.META.get('HTTP_REFERER', 'New_Shop:home_page')
     return render(request, 'registration/register.html', context)
 
 
@@ -166,12 +178,14 @@ def login_request(request):
                 messages.error(request, "Invalid username or password.")
         else:
             messages.error(request, "Invalid username or password.")
+
     form = AuthenticationForm()
+    request.session['previous_url'] = request.META.get('HTTP_REFERER', 'New_Shop:home_page')
+
     context = {
         'title': 'register',
         'login_form': form
     }
-    request.session['previous_url'] = request.META.get('HTTP_REFERER', 'New_Shop:home_page')
     return render(request, 'registration/login.html', context)
 
 
@@ -207,7 +221,9 @@ def password_reset_request(request):
                     messages.success(request, 'A message with reset password instructions has been sent to your inbox.')
                     return redirect('New_Shop:home_page')
             messages.error(request, 'An invalid email has been entered.')
+
     password_reset_form = PasswordResetForm()
+
     context = {
         'password_reset_form': password_reset_form
     }
@@ -279,7 +295,12 @@ def cart(request):
                 instance.product.add(p)
 
             return redirect('New_Shop:payment')
-    context = {'products': products, 'total': total, 'address_form': address_form}
+
+    context = {
+        'products': products,
+        'total': total,
+        'address_form': address_form
+    }
     return render(request, 'cart/cart.html', context)
 
 
@@ -298,16 +319,20 @@ def get_products_and_total(request):
 
 def add_to_cart(request, pk):
     instance = get_object_or_404(Product, id=pk, available=True)
+
     if 'cart' not in request.session:
         request.session['cart'] = {}
     products_in_cart = request.session['cart']
     quantity = int(request.POST.get('quantity', 1))
+
     if str(pk) in products_in_cart:
         products_in_cart[str(pk)]['quantity'] += quantity
     else:
         products_in_cart[str(pk)] = {'quantity': quantity}
+
     request.session.modified = True
     messages.info(request, f"{quantity} {instance.name} added to cart successfully!")
+
     return redirect(request.META.get("HTTP_REFERER", 'New_Shop:home_page'))
 
 
@@ -321,6 +346,7 @@ def remove_from_cart(request, pk):
             else:
                 products_in_cart[str(pk)]['quantity'] -= remove_quantity
             request.session.modified = True
+
     return redirect('New_Shop:cart')
 
 

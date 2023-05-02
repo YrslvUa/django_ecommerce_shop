@@ -103,7 +103,6 @@ class Product(models.Model):
     slug = AutoSlugField(populate_from='name', unique=True, null=True)
     price = models.DecimalField(max_digits=10, decimal_places=2, default=00.00)
     description = models.TextField(max_length=600, blank=False)
-    url = models.URLField(max_length=200, null=True)
     category = models.ForeignKey(Category, related_name='products', on_delete=models.CASCADE)
     product_img = models.ImageField(
         upload_to=upload_location_product,
