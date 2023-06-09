@@ -1,4 +1,4 @@
-# django-ecommerce-store
+# django_ecommerce_store
 This is a fully functional e-commerce website built with Django, a Python-based web framework. The website has all the necessary features required for an online store, including product listings, shopping cart functionality, user authentication, order management, and payment processing.
 
 The website has a clean and modern design, with a responsive layout that works on all devices. It is easy to navigate and user-friendly, with clear calls to action and a streamlined checkout process.
